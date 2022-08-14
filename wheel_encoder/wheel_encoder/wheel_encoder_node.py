@@ -11,12 +11,14 @@ from math import pi
 
 from rclpy.node import Node
 from std_msgs.msg import Header
+from rclpy.parameter import Parameter
+from tf2_ros import TransformBroadcaster
+from rcl_interfaces.msg import SetParametersResult
 from geometry_msgs.msg import (
     TransformStamped,
     Quaternion,
     Transform
 )
-from tf2_ros import TransformBroadcaster
 from dt_interfaces_cps.msg import (
     WheelEncoderStamped,
     WheelsCmdStamped
@@ -45,6 +47,8 @@ class WheelEncoderNode(Node):
                 the encoder.
     """
 
+    PUBLISH_FREQ_PARAM_NAME = "publish_frequency"
+
     def __init__(self, node_name: str):
         super().__init__(node_name)
 
@@ -58,6 +62,8 @@ class WheelEncoderNode(Node):
             _configuration: {self._configuration},
             _publish_frequency: {self._publish_frequency}
         """)
+
+        self.create_publish_freq_param_callback()
 
         # Store number of ticks recorded by encoder
         self._tick = 0
@@ -99,6 +105,17 @@ class WheelEncoderNode(Node):
         self._resolution = config["resolution"]
         self._configuration = config["configuration"]
         self._publish_frequency = config["publish_frequency"]
+
+    def create_publish_freq_param_callback(self):
+        self.declare_parameter(
+            WheelEncoderNode.PUBLISH_FREQ_PARAM_NAME, self._publish_frequency)
+        publish_freq_param = rclpy.parameter.Parameter(
+            WheelEncoderNode.PUBLISH_FREQ_PARAM_NAME,
+            rclpy.Parameter.Type.INTEGER,
+            self._publish_frequency
+        )
+        self.set_parameters([publish_freq_param])
+        self.add_on_set_parameters_callback(self._parameters_callback)
 
     def _load_custom_calibration(self):
         calib_file = os.path.join(
@@ -167,6 +184,18 @@ class WheelEncoderNode(Node):
             transform=Transform(
                 rotation=Quaternion(w=quat[0], x=quat[1], y=quat[2], z=quat[3]))
         ))
+
+    def _parameters_callback(self, params):
+        success = False
+        for param in params:
+            if param.name == WheelEncoderNode.PUBLISH_FREQ_PARAM_NAME:
+                if param.type_ == Parameter.Type.INTEGER:
+                    self._publish_frequency = param.value
+                    success = True
+                    self.get_logger().info(f"""Successfully set publish
+                        frequency param to {self._publish_frequency}""")
+        return SetParametersResult(successful=success)
+
 
 def main(args=None):
     rclpy.init(args=args)
