@@ -299,7 +299,9 @@ class LEDEmitterNode(Node):
         self.changeFrequency()
 
         # Publish current pattern
-        self.pub_state.publish(self.current_pattern_name)
+        current_pattern_msg = String()
+        current_pattern_msg.data = self.current_pattern_name
+        self.pub_state.publish(current_pattern_msg)
 
     def changeFrequency(self):
         """Changes current frequency of LEDs
