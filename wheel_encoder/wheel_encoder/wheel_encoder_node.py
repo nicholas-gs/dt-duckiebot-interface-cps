@@ -4,7 +4,8 @@ import os
 import uuid
 import yaml
 import rclpy
-import tf_transformations
+# import tf_transformations
+import transforms3d
 
 from math import pi
 
@@ -158,12 +159,13 @@ class WheelEncoderNode(Node):
 
         # publish TF
         angle = (float(self._tick) / float(self._resolution)) * 2 * pi
-        quat = tf_transformations.quaternion_from_euler(0, angle, 0)
+        # quat = tf_transformations.quaternion_from_euler(0, angle, 0)
+        quat = transforms3d.euler.euler2quat(0, angle, 0)
         self._tf_broadcaster.sendTransform(TransformStamped(
             header=header,
             child_frame_id=f"{self._veh}/{self._name}_wheel",
             transform=Transform(
-                rotation=Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3]))
+                rotation=Quaternion(w=quat[0], x=quat[1], y=quat[2], z=quat[3]))
         ))
 
 def main(args=None):
