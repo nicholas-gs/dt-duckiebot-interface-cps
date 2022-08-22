@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<launch>
+    <arg name="veh"/>
+    <arg name="name"/>
+    <arg name="node_name" default="tof_node"/>
+    <arg name="param_file_name" default="default.yaml"/>
+    <arg name="required" default="false"/>
+
+    <node pkg="tof_driver_v2" exec="tof_node_v2"
+        name="$(var name)_tof_driver_node_v2" namespace="$(var veh)"
+        if="$(var required)">
+        <param name="veh" value="$(var veh)"/>
+        <param from="$(find-pkg-share tof_driver_v2)/config/$(var param_file_name)"/>
+    </node>
+
+</launch>

@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    # bus: 13
+    # address: 0x29
+    # sensor_name: "front_center"
+    # frequency: 20
+    polling_hz: 10
+    # Slope of the conversion from measured value to published value
+    m: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    # Y-intercept of the conversion from measured value to published value
+    b: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
