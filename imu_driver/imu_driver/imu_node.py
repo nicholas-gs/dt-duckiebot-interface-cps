@@ -46,7 +46,7 @@ class IMUHandler(Node):
         self._use_calibration = self.get_parameter("use_calibration")\
             .get_parameter_value().bool_value
         self._polling_hz = self.get_parameter("polling_hz")\
-            .get_parameter_value().double_value
+            .get_parameter_value().integer_value
 
         if self._use_calibration:
             data, fp, calibration_time = calibration_file.read_calibration(

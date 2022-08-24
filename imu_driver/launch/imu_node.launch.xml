@@ -3,16 +3,15 @@
     <arg name="veh"/>
     <arg name="use_calibration" default="false"/>
     <arg name="polling_hz" default="30"/>
-    <arg name="ang_vel_offset" default="0,0,0"/>
-    <arg name="accel_offset" default="0,0,0"/>
 
     <node pkg="imu_driver" exec="imu_node"
         name="imu_driver_node" namespace="$(var veh)">
         <param name="veh" value="$(var veh)"/>
         <param name="use_calibration" value="$(var use_calibration)"/>
         <param name="polling_hz" value="$(var polling_hz)"/>
-        <param name="ang_vel_offset" value="$(var ang_vel_offset)" value-sep=","/>
-        <param name="accel_offset" value="$(var accel_offset)" value-sep=","/>
+        <param name="ang_vel_offset" value="0,0,0" value-sep=","/>
+        <param name="accel_offset" value="0,0,0" value-sep=","/>
     </node>
 
 </launch>
+
