@@ -1,15 +1,29 @@
 #!usr/bin/env python3
 
+import os
 import math
 import rclpy
 
 from dataclasses import dataclass
+
+try:
+    import smbus2 as smbus
+except ImportError:
+    try:
+        import smbus
+    except ImportError:
+        raise RuntimeError("At least one library between `smbus` and `smbus2`"\
+            " must be installed.")
 
 from sensor_msgs.msg import Range
 from std_msgs.msg import Header
 from rclpy.node import Node
 
 from vl53l0x_driver.VL53L0X import VL53L0X, Vl53l0xAccuracyMode
+
+
+class SensorNotFoundError(Exception):
+    pass
 
 
 @dataclass
@@ -39,7 +53,9 @@ class ToFNode(Node):
 
         self._retrieve_parameters()
         self._accuracy = ToFAccuracy.from_string(self._mode)
-        
+
+        self.smbus = smbus.SMBus(self._i2c_bus)
+        self._detect_i2c_tof(i2c_addr=self._i2c_address)
         # Create a VL53L0X sensor handler
         self._sensor = VL53L0X(
             i2c_bus=self._i2c_bus, i2c_address=self._i2c_address)
@@ -74,6 +90,8 @@ class ToFNode(Node):
         self.declare_parameter("sensor_name")
         self.declare_parameter("frequency", 10)
         self.declare_parameter("mode", value="BETTER")
+        self.declare_parameter("mux_addr", 0x70)
+        self.declare_parameter("mux_channel")
 
         self._veh = self.get_parameter("veh").get_parameter_value().string_value
         self._i2c_bus = self.get_parameter("bus").get_parameter_value()\
@@ -86,9 +104,21 @@ class ToFNode(Node):
             .get_parameter_value().integer_value))
         self._mode = self.get_parameter("mode")\
             .get_parameter_value().string_value
+        self._mux_addr = self.get_parameter("mux_addr")\
+            .get_parameter_value().integer_value
+        self._mux_channel = self.get_parameter("mux_channel")\
+            .get_parameter_value().integer_value
+
+    def _detect_i2c_tof(self, i2c_addr: int):
+        try:
+            self.select_tof()
+            self.smbus.read_byte(i2c_addr)
+        except OSError:
+            raise SensorNotFoundError(f"Cannot find ToF sensor at address {i2c_addr}")
 
     def _timer_cb(self):
         # detect range
+        self.select_tof()
         distance_mm = self._sensor.get_distance()
         # pack observation into a message
         msg = Range(header=Header(stamp=self.get_clock().now().to_msg(),
@@ -100,9 +130,18 @@ class ToFNode(Node):
             range=distance_mm/1000)
         # publish
         self._pub.publish(msg)
+
+    def select_tof(self):
+        """
+        Selects which port of the multiplexer is currently being used.
+        :return: None
+        :raises: IOError if it is unable to communicate with the front bumper multiplexer
+        """
+        self.smbus.write_byte(self._mux_addr, 1 << self._mux_channel)
     
     def on_shutdown(self):
         try:
+            self.select_tof()
             self._sensor.stop_ranging()
         except BaseException:
             pass
@@ -113,6 +152,8 @@ def main(args=None):
     tof_node = ToFNode(node_name="tof_node")
     try:
         rclpy.spin(tof_node)
+    except SensorNotFoundError as error:
+        tof_node.get_logger().fatal(f"Check ToF sensor, {error}")
     except KeyboardInterrupt:
         pass
     finally:
