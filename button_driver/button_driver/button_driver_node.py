@@ -23,7 +23,7 @@ class ButtonDriverNode(Node):
         self._get_parameters()
 
         # create publisher
-        self._pub = self.create_publisher(ButtonEventMsg, "event", 1)
+        self._pub = self.create_publisher(ButtonEventMsg, "~/event", 1)
 
         # create service client to front and back LEDs
         self._srv = self.create_client(
@@ -35,8 +35,10 @@ class ButtonDriverNode(Node):
                 " service found - retry count exceeded")
                 self._srv.destroy()
                 self._srv = None
-            self.get_logger().info("`led_emitter_node/set_pattern` service not"\
+                break
+            self.get_logger().warn("`led_emitter_node/set_pattern` service not"\
                 " not available, waiting again...")
+            srv_try_count += 1
 
         # create button driver
         self._button = ButtonDriver(self._led_gpio_pin, self._signal_gpio_pin,
@@ -75,26 +77,29 @@ class ButtonDriverNode(Node):
         if duration < 0.5:
             self._publish(ButtonEventMsg.EVENT_SINGLE_CLICK)
             self._react(ButtonEventMsg.EVENT_SINGLE_CLICK)
+            self.get_logger().info("Button single click")
             return
         # - held for 3 secs
-        if self._TIME_HOLD_3S < duration < 2 * self._TIME_HOLD_3S:
+        if (ButtonDriverNode._TIME_HOLD_3S < duration
+            < 2 * ButtonDriverNode._TIME_HOLD_3S):
             # publish a display showing shutdown confirmation
-            # self._display_pub.publish(self._renderer.as_msg())
-            # time.sleep(1)
             self._publish(ButtonEventMsg.EVENT_HELD_3SEC)
             self._react(ButtonEventMsg.EVENT_HELD_3SEC)
+            self.get_logger().info("Button held for 3 seconds.")
             return
-        if self._TIME_HOLD_10S < duration:
+        if ButtonDriverNode._TIME_HOLD_10S < duration:
             self._publish(ButtonEventMsg.EVENT_HELD_10SEC)
             self._react(ButtonEventMsg.EVENT_HELD_10SEC)
+            self.get_logger().info("Button held for 10 seconds.")
             return
 
     def _publish(self, event: int):
-        self._pub.publish(ButtonEventMsg(event))
-    
+        msg = ButtonEventMsg()
+        msg.event = event
+        self._pub.publish(msg)
+
     def _react(self, event: int):
-        if event in [ButtonEventMsg.EVENT_HELD_3SEC,
-            ButtonEventMsg.EVENT_HELD_10SEC]:
+        if event == ButtonEventMsg.EVENT_HELD_10SEC:
             # blink top power button as a confirmation, too
             self._button.led.confirm_shutdown()
             

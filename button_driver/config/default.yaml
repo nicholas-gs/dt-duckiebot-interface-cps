@@ -1,4 +1,4 @@
 /**:
-  ros_parameters:
+  ros__parameters:
     led_gpio_pin: 37
     signal_gpio_pin: 40
