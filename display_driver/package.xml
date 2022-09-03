@@ -18,7 +18,6 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>dt_interfaces_cps</exec_depend>
-  <exec_depend>display_renderers</exec_depend>
 
   <exec_depend>python3-numpy</exec_depend>
 

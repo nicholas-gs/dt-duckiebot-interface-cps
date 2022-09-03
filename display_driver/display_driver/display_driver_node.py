@@ -2,43 +2,20 @@
 
 import time
 import rclpy
-import numpy as np
 import Adafruit_SSD1306 
 
 from PIL import Image
+from typing import List
 from rclpy.node import Node
-from threading import Semaphore, Thread
+from threading import Thread
 from dataclasses import dataclass
-
-from typing import Any, Iterable, List
-# from luma.oled.device import ssd1306
-# from luma.core.interface.serial import i2c
-
-from dt_interfaces_cps.msg import (
-    ButtonEvent as ButtonEventMsg,
-    DisplayFragment as DisplayFragmentMsg
-)
-# from display_renderers.display_renderers.utils import (
-#     np_to_pil,
-#     pil_to_np,
-#     # imgmsg_to_mono8,
-#     REGION_FULL,
-#     REGION_HEADER,
-#     REGION_BODY,
-#     REGION_FOOTER,
-#     ALL_PAGES,
-#     PAGE_HOME,
-#     PAGE_SHUTDOWN,
-#     DisplayROI,
-#     DisplayFragment,
-#     AbsDisplayFragmentRenderer,
-# )
-
 from PIL import (
     Image,
     ImageDraw,
     ImageFont
 )
+
+from dt_interfaces_cps.msg import ButtonEvent as ButtonEventMsg
 
 
 class FontNotFoundError(Exception):
@@ -66,6 +43,7 @@ PREDEFINED_FONTS = [
     Font(name="Ubuntu-M",
         path="/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", size=8)
 ]
+
 
 class DisplayNode(Node):
 
