@@ -1,14 +1,10 @@
 <?xml version='1.0'?>
 <launch>
     <arg name="veh"/>
-    <arg name="name"/>
-    <arg name="node_name" default="tof_node"/>
     <arg name="param_file_name" default="front_center.yaml"/>
-    <arg name="required" default="false"/>
 
     <node pkg="tof_driver" exec="tof_node"
-        name="$(var name)_tof_driver_node" namespace="$(var veh)"
-        if="$(var required)">
+        name="tof_node" namespace="$(var veh)">
         <param name="veh" value="$(var veh)"/>
         <param from="$(find-pkg-share tof_driver)/config/$(var param_file_name)"/>
     </node>

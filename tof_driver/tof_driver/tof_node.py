@@ -64,7 +64,7 @@ class ToFNode(Node):
         # Create publishers
         self._pub = self.create_publisher(
             Range,
-            "range",
+            "~/range",
             1)
         
         # start ranging
