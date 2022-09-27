@@ -1,0 +1,69 @@
+<?xml version='1.0'?>
+<launch>
+    <arg name="veh"/>
+    <arg name="use_camera" default="false"/>
+    <arg name="use_imu" default="false"/>
+    <arg name="use_tof" default="false"/>
+    <arg name="use_joystick" default="false"/>
+
+    <let name="robot_type" value="$(env ROBOT_TYPE)"/>
+    <let name="robot_hardware" value="$(env ROBOT_HARDWARE)"/>
+    <let name="robot_configuration" value="$(env ROBOT_CONFIGURATION)"/>
+
+    <!-- Wheel Drivers: reads ROS messages and spins the motors -->
+    <group if="$(eval '\'$(var robot_type)\' == \'duckiebot\'')">
+        <include file="$(find-pkg-share wheels_driver)/launch/wheels_driver_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- Wheel Encoders -->
+    <group if="$(eval '\'$(var robot_configuration)\' != \'DB18\' and \'$(var robot_type)\' == \'duckiebot\' ')">
+        <include file="$(find-pkg-share wheel_encoder)/launch/wheel_encoder_base.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- Camera Node: reads frames from a physical camera and produces ROS messages -->
+    <group if="$(eval '\'$(var robot_type)\' in [\'duckiebot\', \'watchtower\', \'traffic_light\', \'duckiedrone\'] and \'$(var use_camera)\'')">
+        <include file="$(find-pkg-share camera_driver)/launch/camera_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- Button driver -->
+    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\']')">
+        <include file="$(find-pkg-share button_driver)/launch/button_driver_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- OLED Display driver -->
+    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\']')">
+        <include file="$(find-pkg-share display_driver)/launch/display_driver_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- Inertia Measurement Unit (IMU) Sensor -->
+    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\'] and \'$(var use_imu)\'')">
+        <include file="$(find-pkg-share imu_driver)/launch/imu_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- Time of Flight (ToF) Sensor -->
+    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\'] and \'$(var use_tof)\'')">
+        <include file="$(find-pkg-share tof_driver)/launch/tof_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- Joystick: reads from a physical joystick and produces ROS messages -->
+    <group if="$(eval '\'$(var robot_type)\' == \'duckiebot\' and \'$(var use_joystick)\' ')">
+        <include file="$(find-pkg-share joystick)/launch/joystick_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+</launch>
