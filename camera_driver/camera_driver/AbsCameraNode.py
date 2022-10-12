@@ -265,7 +265,7 @@ class AbsCameraNode(ABC, Node):
         Returns:
             :obj:`CameraInfo`: a CameraInfo message object
         """
-        calib_data, full_fp, _ = calibration_file.read_calibration(
+        calib_data, full_fp = calibration_file.read_calibration(
             rel_file_path)
 
         if calib_data is None:
