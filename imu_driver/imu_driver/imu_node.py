@@ -49,17 +49,17 @@ class IMUHandler(Node):
             .get_parameter_value().integer_value
 
         if self._use_calibration:
-            data, fp, calibration_time = calibration_file.read_calibration(
-                os.path.join(IMUHandler.CALIBRATION_REL_DIR, f"{self._veh}.yaml"),
-                ["ang_vel_offset", "accel_offset"])
+            data, fp = calibration_file.read_calibration(
+                os.path.join(IMUHandler.CALIBRATION_REL_DIR, f"{self._veh}.yaml"))
             if data is None:
                 self.get_logger().warn(f"Unable to read calibration file {fp}."\
                     " Using default parameters.")
             else:
                 params_override = [
-                    Parameter(key, Parameter.Type.INTEGER_ARRAY, value) 
-                    for key,value in data.items()]
+                    Parameter(key, Parameter.Type.INTEGER_ARRAY, data[key]) 
+                    for key in ("ang_vel_offset", "accel_offset")]
                 self.set_parameters(params_override)
+                calibration_time = data.get("calibration_time")
                 self.get_logger().info("Overriding parameters with calibration"\
                     f" file: {fp}, timestamp of file: {calibration_time}")
 
