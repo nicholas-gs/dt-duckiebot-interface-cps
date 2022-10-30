@@ -24,7 +24,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'wheels_driver = wheels_driver.wheels_driver_node:main'
+            'wheels_driver = wheels_driver.wheels_driver_node:main',
+            'wheels_driver_test_node=wheels_driver.wheels_driver_test_node:main',
         ],
     },
 )
