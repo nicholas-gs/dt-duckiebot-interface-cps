@@ -26,7 +26,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'led_emitter = led_emitter.led_emitter_node:main'
+            'led_emitter_node=led_emitter.led_emitter_node:main',
+            'led_emitter_test_node=led_emitter.led_emitter_test_node:main'
         ],
     },
 )
