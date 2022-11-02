@@ -1,14 +1,34 @@
 <?xml version='1.0'?>
 <launch>
-    <arg name="veh"/>
+	<arg name="veh" default="$(env ROBOT_NAME)"
+        description="Unique name of the robot. Used as the namespace."/>
+    <arg name="robot_type" default="$(env ROBOT_TYPE)"
+         description="The type of the robot (e.g., duckiebot, watchtower, traffic_light, ...)"/>
+    <arg name="robot_hardware" default="$(env ROBOT_HARDWARE)"
+        description="The hardware of the robot (e.g., Raspberry Pi, Jetson Nano, ..."/>
+    <arg name="robot_configuration" default="$(env ROBOT_CONFIGURATION)"
+         description="The configuration of the robot (e.g., DB19, DB20, WT18, ...)"/>
+
     <arg name="use_camera" default="false"/>
     <arg name="use_imu" default="false"/>
     <arg name="use_tof" default="false"/>
     <arg name="use_joystick" default="false"/>
+    <arg name="use_oled_display" default="false"/>
+    <arg name="use_battery_health" default="true"/>
+    <arg name="use_hardware_stats" default="false"/>
 
-    <let name="robot_type" value="$(env ROBOT_TYPE)"/>
-    <let name="robot_hardware" value="$(env ROBOT_HARDWARE)"/>
-    <let name="robot_configuration" value="$(env ROBOT_CONFIGURATION)"/>
+    <!-- Battery Drivers: read stats from the battery -->
+    <group if="$(eval '\'$(var robot_type)\' in [\'duckiebot\'] and \'$(var use_battery_health)\'')">
+        <include file="$(find-pkg-share battery_drivers)/launch/battery_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <group if="$(eval '\'$(var robot_hardware)\' in [\'jetson_nano\'] and \'$(var use_hardware_stats)\'')">
+        <include file="$(find-pkg-share hardware_stats)/launch/hardware_stats_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
 
     <!-- Wheel Drivers: reads ROS messages and spins the motors -->
     <group if="$(eval '\'$(var robot_type)\' == \'duckiebot\'')">
@@ -39,7 +59,7 @@
     </group>
 
     <!-- OLED Display driver -->
-    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\']')">
+    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\'] and \'$(var use_oled_display)\'')">
         <include file="$(find-pkg-share display_driver)/launch/display_driver_node.launch.xml">
             <arg name="veh" value="$(var veh)"/>
         </include>
