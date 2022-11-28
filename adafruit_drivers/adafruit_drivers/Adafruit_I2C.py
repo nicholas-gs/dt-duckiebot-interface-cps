@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 import re
-import smbus
+try:
+    import smbus
+except ImportError:
+        # Fail if also unable to import smbus2
+        import smbus2 as smbus
+
 
 from dt_device_utils import get_device_hardware_brand, DeviceHardwareBrand
 
