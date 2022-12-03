@@ -43,20 +43,22 @@ class WheelsDriverNode(Node):
         # Publisher for wheels command wih execution time
         self.pub_wheels_cmd = self.create_publisher(
             WheelsCmdStamped,
-            "wheels_cmd_executed",
+            "~/wheels_cmd_executed",
             1)
 
         # Subscribers
         self.sub_topic = self.create_subscription(
             WheelsCmdStamped,
-            "wheels_cmd",
+            "~/wheels_cmd",
             self.wheels_cmd_cb,
             1)
         self.sub_e_stop = self.create_subscription(
             BoolStamped,
-            "emergency_stop",
+            "~/emergency_stop",
             self.estop_cb,
             1)
+
+        self.get_logger().info("Initialised")
 
     def wheels_cmd_cb(self, msg: WheelsCmdStamped):
         """
@@ -94,20 +96,24 @@ class WheelsDriverNode(Node):
         else:
             self.get_logger().info("Emergency Stop Released!!!")
     
-    # todo: Figure out how to trigger hook when node is destroyed
-    # def on_shutdown(self):
-    #     """Shutdown procedure.
-    #     Publishes a zero velocity command at shutdown.
-    #     """
-    #     self.driver.set_wheels_speed(left=0.0, right=0.0)
+    def on_shutdown(self):
+        """Shutdown procedure.
+        Publishes a zero velocity command at shutdown.
+        """
+        self.driver.set_wheels_speed(left=0.0, right=0.0)
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = WheelsDriverNode(node_name="wheels_driver_node")
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.on_shutdown()
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":
