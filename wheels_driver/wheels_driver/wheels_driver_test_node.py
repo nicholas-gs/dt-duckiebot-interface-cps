@@ -108,11 +108,11 @@ def main():
     node.get_logger().info(f"Veh: {veh}")
     pub_wheels_cmd = node.create_publisher(
         WheelsCmdStamped,
-        f"/{veh}/wheels_cmd",
+        f"/{veh}/wheels_driver_node/wheels_cmd",
         10)
     pub_e_stop = node.create_publisher(
         BoolStamped,
-        f"/{veh}/emergency_stop",
+        f"/{veh}/wheels_driver_node/emergency_stop",
         1)
 
     try:
