@@ -274,6 +274,18 @@ class AbsCameraNode(ABC, Node):
         cam_info = CameraInfo()
         cam_info.width = calib_data['image_width']
         cam_info.height = calib_data['image_height']
+
+        # Ensure that array of elements are floating point
+        to_floats = lambda l : list([float(e) for e in l])
+        calib_data['camera_matrix']['data'] = to_floats(
+            ['camera_matrix']['data'])
+        calib_data['distortion_coefficients']['data'] = to_floats(
+            ['distortion_coefficients']['data'])
+        calib_data['rectification_matrix']['data'] = to_floats(
+            ['rectification_matrix']['data'])
+        calib_data['projection_matrix']['data'] = to_floats(
+            ['projection_matrix']['data'])
+
         try:
             cam_info.k = calib_data['camera_matrix']['data']
             cam_info.d = calib_data['distortion_coefficients']['data']
