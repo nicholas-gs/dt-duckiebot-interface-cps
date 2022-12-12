@@ -12,7 +12,6 @@
     <arg name="use_camera" default="false"/>
     <arg name="use_imu" default="false"/>
     <arg name="use_tof" default="false"/>
-    <arg name="use_joystick" default="false"/>
     <arg name="use_oled_display" default="false"/>
     <arg name="use_battery_health" default="true"/>
     <arg name="use_hardware_stats" default="false"/>
@@ -75,13 +74,6 @@
     <!-- Time of Flight (ToF) Sensor -->
     <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\'] and \'$(var use_tof)\'')">
         <include file="$(find-pkg-share tof_driver)/launch/tof_node.launch.xml">
-            <arg name="veh" value="$(var veh)"/>
-        </include>
-    </group>
-
-    <!-- Joystick: reads from a physical joystick and produces ROS messages -->
-    <group if="$(eval '\'$(var robot_type)\' == \'duckiebot\' and \'$(var use_joystick)\' ')">
-        <include file="$(find-pkg-share joystick)/launch/joystick_node.launch.xml">
             <arg name="veh" value="$(var veh)"/>
         </include>
     </group>
