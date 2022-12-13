@@ -9,12 +9,15 @@
     <arg name="robot_configuration" default="$(env ROBOT_CONFIGURATION)"
          description="The configuration of the robot (e.g., DB19, DB20, WT18, ...)"/>
 
+    <arg name="use_battery_health" default="false"/>
+    <arg name="use_hardware_stats" default="false"/>
+    <arg name="use_wheel_drivers" default="true"/>
+    <arg name="use_wheel_encoders" default="false"/>
     <arg name="use_camera" default="false"/>
+    <arg name="use_button" default="false"/>
+    <arg name="use_oled_display" default="false"/>
     <arg name="use_imu" default="false"/>
     <arg name="use_tof" default="false"/>
-    <arg name="use_oled_display" default="false"/>
-    <arg name="use_battery_health" default="true"/>
-    <arg name="use_hardware_stats" default="false"/>
 
     <!-- Battery Drivers: read stats from the battery -->
     <group if="$(eval '\'$(var robot_type)\' in [\'duckiebot\'] and \'$(var use_battery_health)\'')">
@@ -30,14 +33,14 @@
     </group>
 
     <!-- Wheel Drivers: reads ROS messages and spins the motors -->
-    <group if="$(eval '\'$(var robot_type)\' == \'duckiebot\'')">
+    <group if="$(eval '\'$(var robot_type)\' == \'duckiebot\' and \'$(var use_wheel_drivers)\'')">
         <include file="$(find-pkg-share wheels_driver)/launch/wheels_driver_node.launch.xml">
             <arg name="veh" value="$(var veh)"/>
         </include>
     </group>
 
     <!-- Wheel Encoders -->
-    <group if="$(eval '\'$(var robot_configuration)\' != \'DB18\' and \'$(var robot_type)\' == \'duckiebot\' ')">
+    <group if="$(eval '\'$(var robot_configuration)\' != \'DB18\' and \'$(var robot_type)\' == \'duckiebot\' and \'$(var use_wheel_encoders)\'')">
         <include file="$(find-pkg-share wheel_encoder)/launch/wheel_encoder_base.launch.xml">
             <arg name="veh" value="$(var veh)"/>
         </include>
@@ -51,7 +54,7 @@
     </group>
 
     <!-- Button driver -->
-    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\']')">
+    <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\'] and \'$(var use_button)\'')">
         <include file="$(find-pkg-share button_driver)/launch/button_driver_node.launch.xml">
             <arg name="veh" value="$(var veh)"/>
         </include>
