@@ -16,7 +16,6 @@ from sensor_msgs.msg import CompressedImage
 from camera_driver.AbsCameraNode import (
     AbsCameraNode,
     DeclareParams,
-    cv2_to_compressed_imgmsg_replacement
 )
 
 
@@ -134,8 +133,7 @@ class JetsonNanoCameraNode(AbsCameraNode):
                     # without HW acceleration, the image is returned as RGB, encode on CPU
                     if image is not None:
                         image = np.uint8(image)
-                    # image_msg = self._bridge.cv2_to_compressed_imgmsg(image, dst_format='jpeg')
-                    image_msg = cv2_to_compressed_imgmsg_replacement(image, dst_format='jpeg')
+                    image_msg = self._bridge.cv2_to_compressed_imgmsg(image, dst_format='jpeg')
                 # publish the compressed image
                 self.publish(image_msg)
             # grab next frame

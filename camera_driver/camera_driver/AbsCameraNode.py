@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from typing import Any, List, Optional
 from abc import ABC, abstractmethod
 
+from cv_bridge import CvBridge
+
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 # from sensor_msgs.srv import SetCameraInfo
@@ -32,42 +34,6 @@ class DeclareParams:
     default_value: Any = None
 
 
-def cv2_to_compressed_imgmsg_replacement(cvim, dst_format='jpg'):
-    """I copied this function from cv_bridge so that I don't have to figure out
-    how to compile cv_bridge for Python3!
-    Convert an OpenCV :cpp:type:`cv::Mat` type to a ROS sensor_msgs::CompressedImage message.
-
-    :param cvim:      An OpenCV :cpp:type:`cv::Mat`
-    :param dst_format:  The format of the image data, one of the following strings:
-
-    http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html
-    http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html#Mat
-    * imread(const string& filename, int flags)
-        * bmp, dib
-        * jpeg, jpg, jpe
-        * jp2
-        * png
-        * pbm, pgm, ppm
-        * sr, ras
-        * tiff, tif
-
-    :rtype:           A sensor_msgs.msg.CompressedImage message
-    :raises CvBridgeError: when the ``cvim`` has a type that is incompatible with ``format``
-
-    This function returns a sensor_msgs::Image message on success,
-    or raises :exc:`cv_bridge.CvBridgeError` on failure.
-    """
-    if not isinstance(cvim, (np.ndarray, np.generic)):
-        raise TypeError('Your input type is not a numpy array')
-    cmprs_img_msg = CompressedImage()
-    cmprs_img_msg.format = dst_format
-    ext_format = '.' + dst_format
-    # This line may raise a Runtime Exception
-    cmprs_img_msg.data.frombytes(np.array(cv2.imencode(ext_format, cvim)[1]).tobytes())
-
-    return cmprs_img_msg
-
-
 class AbsCameraNode(ABC, Node):
 
     CALIBRATION_RELATIVE_FOLDER = 'camera_intrinsic'
@@ -85,6 +51,9 @@ class AbsCameraNode(ABC, Node):
         self._load_calibration_file()
         self.original_camera_info.header.frame_id = self._frame_id
         self.current_camera_info = copy.deepcopy(self.original_camera_info)
+
+        # create cv bridge
+        self._bridge = CvBridge()
 
         # Setup publishers
         self._has_published = False
