@@ -11,13 +11,14 @@
 
     <arg name="use_battery_health" default="false"/>
     <arg name="use_hardware_stats" default="false"/>
-    <arg name="use_wheel_drivers" default="true"/>
+    <arg name="use_wheel_drivers" default="false"/>
     <arg name="use_wheel_encoders" default="false"/>
     <arg name="use_camera" default="false"/>
     <arg name="use_button" default="false"/>
     <arg name="use_oled_display" default="false"/>
     <arg name="use_imu" default="false"/>
     <arg name="use_tof" default="false"/>
+    <arg name="use_leds" default="false"/>
 
     <!-- Battery Drivers: read stats from the battery -->
     <group if="$(eval '\'$(var robot_type)\' in [\'duckiebot\'] and \'$(var use_battery_health)\'')">
@@ -78,6 +79,14 @@
     <group if="$(eval '\'$(var robot_configuration)\' in [\'DB21M\', \'DB21J\', \'DB21R\'] and \'$(var use_tof)\'')">
         <include file="$(find-pkg-share tof_driver)/launch/tof_node.launch.xml">
             <arg name="veh" value="$(var veh)"/>
+        </include>
+    </group>
+
+    <!-- LED Emitters -->
+    <group if="$(eval '\'$(var robot_type)\' in [\'duckiebot\', \'watchtower\', \'traffic_light\'] and \'$(var use_leds)\'')">
+        <include file="$(find-pkg-share led_emitter)/launch/led_emitter_node.launch.xml">
+            <arg name="veh" value="$(var veh)"/>
+            <arg name="robot_type" value="$(var robot_type)"/>
         </include>
     </group>
 
