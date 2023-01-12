@@ -15,7 +15,7 @@
   <test_depend>python3-pytest</test_depend>
 
   <exec_depend>dt_device_utils</exec_depend>
-  <exec_depend>dt_interfaces_cps</exec_depend>
+  <exec_depend>dt_health_interfaces_cps</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

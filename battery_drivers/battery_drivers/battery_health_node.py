@@ -4,8 +4,8 @@ import rclpy
 
 from rclpy.node import Node
 from battery_drivers.battery import Battery
-from dt_interfaces_cps.srv import BatteryInfo
-from dt_interfaces_cps.msg import BatteryHealth
+from dt_health_interfaces_cps.srv import BatteryInfo
+from dt_health_interfaces_cps.msg import BatteryHealth
 
 
 class BatteryHealthNode(Node):

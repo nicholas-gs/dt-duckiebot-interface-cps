@@ -6,7 +6,7 @@ from rclpy.node import Node
 from threading import Thread, Semaphore
 
 from hardware_stats.stats_parser import *
-from dt_interfaces_cps.msg import HardwareStats as HardwareStatsMsg
+from dt_health_interfaces_cps.msg import HardwareStats as HardwareStatsMsg
 from dt_device_utils import (
     DeviceHardwareBrand,
     get_device_hardware_brand

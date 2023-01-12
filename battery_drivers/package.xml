@@ -16,7 +16,8 @@
 
   <exec_depend>python3-semver</exec_depend>
   <exec_depend>python3-serial</exec_depend>
-  <exec_depend>dt_interfaces_cps</exec_depend>
+
+  <exec_depend>dt_health_interfaces_cps</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>
